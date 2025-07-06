@@ -5,17 +5,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Configurações de estado
     const state = {
-        commandHistory: [],
-        historyIndex: -1,
-        currentTheme: 'dark',
-        awaitingPassword: false,
-        protectedCommand: "",
-        isAdminMode: false,
-        passwords: {
-            admin: "admin789",
-            secret: "senha123"
-        }
-    };
+    commandHistory: [],
+    historyIndex: -1,
+    currentTheme: 'dark',
+    awaitingPassword: false,
+    protectedCommand: "",
+    isAdminMode: false,
+    isSecretMode: false, // ADICIONE ESTA LINHA
+    passwords: {
+        admin: "admin789",
+        secret: "senha123"
+    }
+};
 
     // ============== FUNÇÕES UTILITÁRIAS ==============
     const utils = {
@@ -49,8 +50,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
             typing();
+navigateHistory: (direction) => {
+    if (state.commandHistory.length === 0) return;
+    
+    if (direction === 'up' && state.historyIndex < state.commandHistory.length - 1) {
+        state.historyIndex++;
+    } else if (direction === 'down' && state.historyIndex > 0) {
+        state.historyIndex--;
+    } else if (direction === 'down' && state.historyIndex === 0) {
+        state.historyIndex = -1;
+        commandInput.value = '';
+        return;
+    }
+    
+    commandInput.value = state.commandHistory[state.commandHistory.length - 1 - state.historyIndex];
+    }
+
         },
 
+
+        
         switchTheme: (themeName) => {
             const validThemes = ['dark', 'light', 'matrix'];
             if (validThemes.includes(themeName)) {
@@ -60,33 +79,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return `Tema inválido. Opções: ${validThemes.join(', ')}`;
         },
-
-        navigateHistory: (direction) => {
-            if (state.commandHistory.length === 0) return;
-            
-            if (direction === 'up' && state.historyIndex < state.commandHistory.length - 1) {
-                state.historyIndex++;
-            } else if (direction === 'down' && state.historyIndex > 0) {
-                state.historyIndex--;
-            } else if (direction === 'down' && state.historyIndex === 0) {
-                state.historyIndex = -1;
-                commandInput.value = '';
-                return;
-            }
-            
-            commandInput.value = state.commandHistory[state.commandHistory.length - 1 - state.historyIndex];
-        },
-
         showWelcomeBanner: () => {
             const welcomeMessage = `
 Bem-vindo ao Terminal Interativo Avançado!
 Versão 2.0 | Digite "help" para começar
-
-Dica: Use as setas ↑/↓ para navegar no histórico
             `;
             utils.addOutput(welcomeMessage);
         }
     };
+    commandInput.addEventListener('keydown', (e) => {
+    try {
+        if (e.key === 'Enter') {
+            processCommand(commandInput.value);
+            commandInput.value = '';
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            utils.navigateHistory('up');
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            utils.navigateHistory('down');
+        }
+    } catch (error) {
+        console.error(error);
+    }
+});
 
     // ============== SISTEMA DE COMANDOS ==============
     const commands = {
@@ -116,7 +132,13 @@ Dica: Use as setas ↑/↓ para navegar no histórico
         return helpText;
     }
 },
-
+        Gabinete: {
+            description: "acessa o gabinete",
+            secret: true,
+            execute: () => {
+                return "";
+            }
+        },
         about: {
             description: "Mostra informações sobre mim",
             execute: () => `
@@ -195,24 +217,29 @@ Dica: Use as setas ↑/↓ para navegar no histórico
             }
         },
 
-        theme: {
-            description: "Muda o tema do terminal",
-            usage: "theme [dark|light|matrix]",
-            adminOnly: true,
-            execute: (args) => {
-                const themes = ['dark', 'light', 'matrix'];
-                if (args.length === 0) {
-                    return `Tema atual: ${state.currentTheme}\nTemas disponíveis: ${themes.join(', ')}`;
-                }
-                return utils.switchTheme(args[0]);
-            }
-        },
+        themes: {
+  description: "Muda o tema do terminal",
+  adminOnly: true,
+  execute: async () => {
+    const themeOptions = ['dark', 'light', 'matrix'];
+    const selectedTheme = await prompt(`Temas disponíveis:\n${themeOptions.join('\n')}\nEscolha um tema (1-3): `);
 
-        ls: {
-            description: "Lista comandos disponíveis",
-            adminOnly: true,
-            execute: () => Object.keys(commands).sort().join('   ')
-        },
+    if (selectedTheme >= 1 && selectedTheme <= 3) {
+      const chosenTheme = themeOptions[selectedTheme - 1];
+      document.body.setAttribute('data-theme', chosenTheme);
+    } else {
+      console.log('Opção inválida. Tente novamente!');
+    }
+  }
+},
+
+// Comandos do modo secreto
+arquivos: {
+    description: "Acessa arquivos confidenciais",
+    secret: true,
+    execute: () => "Nível de acesso insuficiente para visualizar arquivos"
+},
+
 
         // ----- COMANDOS DO SISTEMA -----
         clear: {
@@ -246,8 +273,10 @@ Versão 2.0 | Digite "help" para começar
     // ============== PROCESSADOR DE COMANDOS ==============
 
 const showSecretLogin = () => {
-    // Esconde o terminal
+    // Esconde o terminal e limpa o histórico
     document.querySelector('.terminal').style.display = 'none';
+    state.commandHistory = [];
+    state.historyIndex = -1;
     
     // Cria a tela de login secreta
     const secretLogin = document.createElement('div');
@@ -282,28 +311,34 @@ const showSecretLogin = () => {
         const password = document.getElementById('secret-password').value;
         
         if (username === "MKULTRA" && password === "CLASSIFIED") {
-            alert("ACCESS GRANTED");
-            // Aqui você pode adicionar o que acontece com login correto
+            // Limpa tudo
+            commands.clear.execute();
+            
+            // Ativa modo secreto
+            state.isSecretMode = true;
+            state.commandHistory = []; // Limpa histórico
+            
+            // Mostra mensagem de acesso
+            utils.addOutput("🔓 ACESSO CONCEDIDO - MODO SECRETO ATIVADO");
+            utils.addOutput("Comandos disponíveis: arquivos, gabinete");
+            
+            // Restaura terminal e remove login
+            document.querySelector('.terminal').style.display = 'flex';
+            document.body.removeChild(secretLogin);
+            
+            // Foca no input
+            document.getElementById('command-input').focus();
         } else {
             alert("ACCESS DENIED");
         }
     });
     
-    // Evento do botão Exit - AGORA COM CLEAR
+    // Evento do botão Exit
     document.getElementById('secret-exit-btn').addEventListener('click', () => {
-        // Restaura o terminal
+        // Restaura o terminal com clear
         document.querySelector('.terminal').style.display = 'flex';
-        
-        // Executa o clear
         commands.clear.execute();
-        
-                // Executa o logout
-        commands.logout.execute();
-
-        // Remove a tela de login
         document.body.removeChild(secretLogin);
-        
-        // Foca no input
         document.getElementById('command-input').focus();
     });
 };
@@ -342,13 +377,18 @@ const showSecretLogin = () => {
         }}
         
 
+
+
         if (commands[cmd]) {
             // Verifica comandos restritos
             if (commands[cmd].adminOnly && !state.isAdminMode) {
                 utils.addOutput("❌ Comando restrito. Acesso permitido apenas no modo admin.");
                 return;
             }
-            
+                    // Verifica se é comando secreto e se está no modo secreto
+        if (commands[cmd].secret && !state.isSecretMode) {
+            return utils.addOutput(`Comando não encontrado: ${cmd}\nDigite "help" para ver os comandos disponíveis.`);
+        }
             // Verifica comandos protegidos
             if (commands[cmd].protected) {
                 utils.addOutput(`🔒 Este comando requer autenticação. Digite a senha para "${cmd}":`, false);
@@ -371,31 +411,5 @@ const showSecretLogin = () => {
     };
 
 
-    // Event Listeners
-    commandInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            processCommand(commandInput.value);
-            commandInput.value = '';
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            utils.navigateHistory('up');
-        } else if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            utils.navigateHistory('down');
-        }
-    });
-
     initTerminal();
 });
-
-utils.showWelcomeBanner = () => {
-    const welcomeMessage = `
-Bem-vindo ao Terminal Interativo Avançado!
-Versão 2.0 | Digite "help" para começar
-
-Dica: Use as setas ↑/↓ para navegar no histórico
-    `;
-    utils.addOutput(welcomeMessage);
-
-    
-};
