@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Interativo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="buttons">
+                <span class="red"></span>
+                <span class="yellow"></span>
+                <span class="green"></span>
+            </div>
+            <div class="title">terminal@user: ~</div>
+        </div>
+        <div class="terminal-body" id="terminal-output">
+            <div class="command-line">
+                <span class="prompt">user@terminal:~$</span>
+                <span class="command">help</span>
+            </div>
+            <div class="output">
+                Bem-vindo ao terminal interativo!<br>
+                Comandos disponíveis: help, about, projects, contact<br>
+                Digite um comando e pressione Enter...
+            </div>
+        </div>
+        <div class="terminal-input">
+            <span class="prompt">user@terminal:~$</span>
+            <input type="text" id="command-input" autofocus>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
