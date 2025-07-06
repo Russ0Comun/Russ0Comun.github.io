@@ -487,3 +487,26 @@ body {
     background: white;
     color: black;
 }
+/* Estilo para saída de imagens secretas */
+.image-output {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px dashed #fff;
+    background-color: #111;
+    font-family: monospace;
+    white-space: pre;
+}
+
+.image-output::before {
+    content: "┌─[ IMAGEM CLASSIFICADA ]";
+    display: block;
+    margin-bottom: 5px;
+    color: #ccc;
+}
+
+.image-output::after {
+    content: "└─[ FIM DO ARQUIVO ]";
+    display: block;
+    margin-top: 5px;
+    color: #ccc;
+}
