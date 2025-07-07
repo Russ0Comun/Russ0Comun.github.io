@@ -136,6 +136,7 @@ Versão 2.0 | Digite "help" para começar
             description: "acessa o gabinete",
             secret: true,
             execute: () => {
+                console.log("MORRE")
                 return "";
             }
         },
