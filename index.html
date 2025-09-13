@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>:)</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            color: #F00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .clock-container {
+            border: 3px solid #F00;
+            padding: 5vw;
+            text-align: center;
+            min-width: 60vw;
+            box-sizing: border-box;
+            transition: all 0.5s ease;
+        }
+        
+        .clock {
+            font-size: 8vw;
+            letter-spacing: 1vw;
+            text-shadow: 0 0 1vw #F00;
+            white-space: nowrap;
+            transition: all 0.5s ease;
+        }
+        
+        .separator {
+            animation: blink 1s step-end infinite;
+        }
+        
+        #imageContainer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 5;
+            flex-direction: column;
+        }
+        
+        #finalImage {
+            max-width: 90%;
+            max-height: 70%;
+            border: 3px solid #F00;
+            box-shadow: 0 0 30px #F00;
+            pointer-events: none;
+        }
+        
+        .message {
+            color: #F00;
+            font-size: 16px;
+            opacity: 0.7;
+            margin-top: 20px;
+            text-align: center;
+            max-width: 80%;
+            font-family: 'Courier New', monospace;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        @media (max-width: 600px) {
+            .clock {
+                font-size: 12vw;
+                letter-spacing: 0.5vw;
+            }
+            .clock-container {
+                padding: 8vw;
+                min-width: 80vw;
+            }
+            .message {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="clock" id="countdown">--:--:--:--</div>
+    </div>
+    
+    <div id="imageContainer">
+        <div class="message">ŠŠŠŠŠ–ŠŠ”ŠŠ”ŠŠ–ŠŠ–ŠŠŠŠ– ŠŠŠƒ ŠŠŠ„ ŠŠŠƒ ŠŠ”ŠŠ–ŠŠŠŠ–ŠŠ”ŠŠŠƒ ŠŠŠ…ŠŠ–ŠŠ…ŠŠ„ŠŠ–ŠŠŠ‹ŠŠ–ŠŠŠŽ</div>
+    </div>
+
+    <script>
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || 
+                (e.ctrlKey && e.shiftKey && e.key === 'C') || (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+            }
+        });
+        
+        const _0xda73 = ["aHR0cHM6Ly9pLmltZ3VyLmNvbS93NVJRcVNVLmpwZWc=", "Ym9udmVub24gYWwgbGEgc2VuZmluYSBiaWJsaW90ZWtv"];
+        
+        function _0x3a8f(str) {
+            try {
+                return decodeURIComponent(escape(atob(str)));
+            } catch (e) {
+                return "Erro ao decodificar";
+            }
+        }
+        
+        function _0x5c7d(str) {
+            let result = '';
+            for (let i = 0; i < str.length; i++) {
+                result += String.fromCharCode(str.charCodeAt(i) + 5);
+            }
+            return result;
+        }
+        
+        function _0x2b9e(str) {
+            let result = '';
+            for (let i = 0; i < str.length; i++) {
+                result += String.fromCharCode(str.charCodeAt(i) - 5);
+            }
+            return result;
+        }
+        
+        const _0x8f2c = _0x5c7d("bonvenon al la senfina biblioteko");
+        
+        let imageShown = false;
+        const originalTargetDate = new Date(new Date().getFullYear(), 8, 21);
+        
+        function updateCountdown() {
+            const now = new Date();
+            const targetDate = originalTargetDate;
+            const diff = targetDate - now;
+            
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = 
+                    '00<span class="separator">:</span>00<span class="separator">:</span>00<span class="separator">:</span>00';
+                
+                if (!imageShown) {
+                    setTimeout(showImage, 1000);
+                    imageShown = true;
+                }
+                return;
+            }
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('countdown').innerHTML = 
+                `${days.toString().padStart(2, '0')}<span class="separator">:</span>${hours.toString().padStart(2, '0')}<span class="separator">:</span>${minutes.toString().padStart(2, '0')}<span class="separator">:</span>${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function showImage() {
+            const container = document.getElementById('imageContainer');
+            container.style.display = 'flex';
+            
+            const img = document.createElement('img');
+            img.id = 'finalImage';
+            img.onload = function() {
+                const loadingMsg = container.querySelector('.message');
+                if (loadingMsg) {
+                    loadingMsg.remove();
+                }
+                
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message';
+                messageDiv.textContent = _0x2b9e(_0x8f2c);
+                container.appendChild(messageDiv);
+            };
+            
+            
+            img.src = _0x3a8f(_0xda73[0]);
+            container.insertBefore(img, container.firstChild);
+            
+            document.querySelector('.clock-container').style.opacity = '0.1';
+        }
+        
+        
+        document.querySelector('#imageContainer .message').textContent = _0x8f2c;
+        
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
